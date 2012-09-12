@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+
+# ## An Easy Way to Compile and Run Java Classes
+#
+# System utility for compiling and running Java classes
+# in a specific directory structure.
+#
+# #### Recommended Installation
+# Save this code to a file named `easyjava`, somewhere on your HD. Then
+# in your `~/.bash_profile` add the following:
+#
+#     alias easyjava="/path/to/easyjava"
+#
+# #### Directory structure
+# The bin folder will be automatically created if you don't have one.
+#
+#     project/
+#            |
+#            |- src/
+#            |- tests/
+#            |- bin/
+#
+# #### Usage
+# It is required that you be executing this script from the projects directory.
+#
+#     easyjava new NameOfProject
+#     easyjava test
+#     easyjava run AClass
+#
+
+require 'optparse'
+
+# All of the options parsed from the commandline.
+options = {}
+
+optparse = OptionParser.new do |opts|
+
+  # Help banner
+  opts.banner = "Usage: easyjava [options] class"
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
+end
+optparse.parse!
+
+unless ARGV.size > 0
+  puts optparse.help
+  exit
+end
+
+def ensure_structure
+  # Ensure we have a src folder, quit if not.
+  unless File.directory? 'src'
+    puts "No src directory found."
+    exit
+  end
+
+  # Ensure we have a bin folder, make one if not.
+  Dir.mkdir "bin" unless File.directory? 'bin'
+end
+
+
+
+## COMMANDS ##
+
+case ARGV[0]
+when "new"
+  puts "Usage: easyjava new NameOfProject" unless ARGV[1]
+  name = ARGV[1]
+  Dir.mkdir name unless File.directory? name
+  Dir.mkdir File.join(name, 'src')
+  Dir.mkdir File.join(name, 'test')
+when "test"
+  compile = system "javac -d bin src/*.java tests/*.java"
+  if compile
+    Dir.foreach('tests') do |f|
+      next if f == '.' or f == '..'
+      puts "------------------------------"
+      puts "Testing #{File.basename(f, '.*')}"
+      puts "------------------------------"
+      system "java -cp bin #{File.basename(f, '.*')}"
+    end
+  end
+when "run"
+  # The class we want to run.
+  puts "Usage: easyjava run ClassName" unless ARGV[1]
+  klass = ARGV[1]
+  puts "------------------------------"
+  puts "Running #{klass}"
+  puts "------------------------------"
+  compile = system "javac -d bin src/*.java"
+  system "java -cp bin #{klass}" if compile
+end
