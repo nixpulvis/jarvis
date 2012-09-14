@@ -5,12 +5,6 @@
 # System utility for compiling and running Java classes
 # in a specific directory structure.
 #
-# #### Recommended Installation
-# Save this code to a file named `easyjava`, somewhere on your HD. Then
-# in your `~/.bash_profile` add the following:
-#
-#     alias easyjava="/path/to/easyjava"
-#
 # #### Directory structure
 # The bin folder will be automatically created if you don't have one.
 #
