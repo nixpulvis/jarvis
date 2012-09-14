@@ -1,88 +1,55 @@
-#!/usr/bin/env ruby
+#! /usr/bin/env ruby
 
-# ## An Easy Way to Compile and Run Java Classes
-#
-# System utility for compiling and running Java classes
-# in a specific directory structure.
-#
-# #### Directory structure
-# The bin folder will be automatically created if you don't have one.
-#
-#     project/
-#            |
-#            |- src/
-#            |- tests/
-#            |- bin/
-#
-# #### Usage
-# It is required that you be executing this script from the projects directory.
-#
-#     easyjava new NameOfProject
-#     easyjava test
-#     easyjava run AClass
-#
+require 'thor'
 
-require 'optparse'
+class Jarvis < Thor
+  include Thor::Actions
 
-# All of the options parsed from the commandline.
-options = {}
-
-optparse = OptionParser.new do |opts|
-
-  # Help banner
-  opts.banner = "Usage: easyjava [options] class"
-  opts.on( '-h', '--help', 'Display this screen' ) do
-    puts opts
-    exit
-  end
-end
-optparse.parse!
-
-unless ARGV.size > 0
-  puts optparse.help
-  exit
-end
-
-def ensure_structure
-  # Ensure we have a src folder, quit if not.
-  unless File.directory? 'src'
-    puts "No src directory found."
-    exit
+  desc "new [PROJECT_NAME]", "create a new Java project"
+  def new( name )
+    if File.directory? name
+      say "Folder #{name} already exists."
+      exit
+    end
+    Dir.mkdir name
+    Dir.mkdir File.join(name, 'src')
+    Dir.mkdir File.join(name, 'test')
   end
 
-  # Ensure we have a bin folder, make one if not.
-  Dir.mkdir "bin" unless File.directory? 'bin'
-end
-
-
-
-## COMMANDS ##
-
-case ARGV[0]
-when "new"
-  puts "Usage: easyjava new NameOfProject" unless ARGV[1]
-  name = ARGV[1]
-  Dir.mkdir name unless File.directory? name
-  Dir.mkdir File.join(name, 'src')
-  Dir.mkdir File.join(name, 'test')
-when "test"
-  compile = system "javac -d bin src/*.java tests/*.java"
-  if compile
-    Dir.foreach('tests') do |f|
-      next if f == '.' or f == '..'
-      puts "------------------------------"
-      puts "Testing #{File.basename(f, '.*')}"
-      puts "------------------------------"
-      system "java -cp bin #{File.basename(f, '.*')}"
+  desc "test", "recursively run all the test classes in ./test"
+  def test
+    ensure_bin
+    compile = system "javac -d bin src/*.java test/*.java"
+    if compile
+      Dir.foreach('test') do |f|
+        next if f == '.' or f == '..'
+        say "------------------------------"
+        say "Testing #{File.basename(f, '.*')}"
+        say "------------------------------"
+        system "java -cp bin #{File.basename(f, '.*')}"
+      end
     end
   end
-when "run"
-  # The class we want to run.
-  puts "Usage: easyjava run ClassName" unless ARGV[1]
-  klass = ARGV[1]
-  puts "------------------------------"
-  puts "Running #{klass}"
-  puts "------------------------------"
-  compile = system "javac -d bin src/*.java"
-  system "java -cp bin #{klass}" if compile
+
+  desc "exec [CLASS]", "compile src and run the given class"
+  def exec( klass )
+    ensure_bin
+    say "------------------------------"
+    say "Running #{klass}"
+    say "------------------------------"
+    compile = system "javac -d bin src/*.java"
+    system "java -cp bin #{klass}" if compile
+  end
+
+
+  no_tasks do
+
+    def ensure_bin
+      Dir.mkdir "bin" unless File.directory? 'bin'
+    end
+
+  end
+
 end
+
+Jarvis.start
