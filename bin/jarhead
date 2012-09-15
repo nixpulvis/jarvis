@@ -1,8 +1,8 @@
-#! /usr/bin/env ruby
+#!/usr/bin/env ruby
 
 require 'thor'
 
-class Jarvis < Thor
+class Jarhead < Thor
   include Thor::Actions
 
   desc "new [PROJECT_NAME]", "create a new Java project"
@@ -23,9 +23,9 @@ class Jarvis < Thor
     if compile
       Dir.foreach('test') do |f|
         next if f == '.' or f == '..'
-        say "------------------------------"
+        say ".............................."
         say "Testing #{File.basename(f, '.*')}"
-        say "------------------------------"
+        say ".............................."
         system "java -cp bin #{File.basename(f, '.*')}"
       end
     end
@@ -34,9 +34,9 @@ class Jarvis < Thor
   desc "exec [CLASS]", "compile src and run the given class"
   def exec( klass )
     ensure_bin
-    say "------------------------------"
+    say ".............................."
     say "Running #{klass}"
-    say "------------------------------"
+    say ".............................."
     compile = system "javac -d bin src/*.java"
     system "java -cp bin #{klass}" if compile
   end
@@ -52,4 +52,4 @@ class Jarvis < Thor
 
 end
 
-Jarvis.start
+Jarhead.start
