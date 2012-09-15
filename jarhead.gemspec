@@ -12,5 +12,8 @@ Gem::Specification.new do |gem|
   gem.version       = "0.0.3"
 
   gem.add_runtime_dependency "thor"
+  gem.add_runtime_dependency "highline"
+  gem.add_runtime_dependency "net-ssh"
+  gem.add_runtime_dependency "net-sftp"
   gem.add_development_dependency "rake"
 end

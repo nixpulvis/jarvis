@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-require 'thor'
+require "thor"
+require "highline"
 
 class Jarhead < Thor
-  include Thor::Actions
 
   desc "new [PROJECT_NAME]", "create a new Java project"
   def new( name )
@@ -41,11 +41,62 @@ class Jarhead < Thor
     system "java -cp bin #{klass}" if compile
   end
 
+  desc "ssh", "run stuff."
+  def ssh
+    require "net/ssh"
+    require 'net/sftp'
+
+    # Ash for username and password.
+    username = ask "Enter your CCS username:"
+    password = get_password
+
+    # Test username/password
+    Net::SSH.start('blackwidow.ccs.neu.edu', username, password: password)
+
+    # Gather files that we might want to submit.
+    files = []
+    Dir.foreach('src') do |f|
+      next if f == "." or f == ".."
+      files << File.join("src", f)
+    end
+    Dir.foreach('test') do |f|
+      next if f == "." or f == ".."
+      files << File.join("test", f)
+    end
+
+    # Prompt for user selection
+    files.each_with_index do |f, i|
+      say "#{i}.  #{f}"
+    end
+    choice = ask("What file?").to_i
+    basename = File.basename files[choice]
+
+    # transfer the file to the linuxbox desktop
+    Net::SFTP.start('blackwidow.ccs.neu.edu', username, password: password) do |sftp|
+      sftp.upload!("#{files[choice]}", "/home/#{username}/Desktop/#{basename}")
+    end
+
+    # run OOD's submit script
+    Net::SSH.start('blackwidow.ccs.neu.edu', username, password: password) do |ssh|
+      # capture only stdout matching a particular pattern
+      stdout = ""
+      assign_num = ask "What assignment number is this?"
+      ssh.exec!("/course/cs3500wc/submit #{username} #{assign_num} /home/#{username}/Desktop/#{basename}") do |channel, stream, data|
+        stdout << data if stream == :stdout
+      end
+      puts stdout
+    end
+  end
+
 
   no_tasks do
 
     def ensure_bin
       Dir.mkdir "bin" unless File.directory? 'bin'
+    end
+
+    def get_password( prompt="Enter CCS password: " )
+      ask(prompt) { |q| q.echo = false }
     end
 
   end
