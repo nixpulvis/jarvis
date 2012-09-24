@@ -23,9 +23,9 @@ class Jarhead < Thor
     if compile
       Dir.foreach('test') do |f|
         next if f == '.' or f == '..'
-        say ".............................."
+        say "------------------------------"
         say "Testing #{File.basename(f, '.*')}"
-        say ".............................."
+        say "------------------------------"
         system "java -cp bin #{File.basename(f, '.*')}"
       end
     end
@@ -34,24 +34,31 @@ class Jarhead < Thor
   desc "exec [CLASS]", "compile src and run the given class"
   def exec( klass )
     ensure_bin
-    say ".............................."
+    say "------------------------------"
     say "Running #{klass}"
-    say ".............................."
+    say "------------------------------"
     compile = system "javac -d bin src/*.java"
     system "java -cp bin #{klass}" if compile
   end
 
-  desc "ssh", "run stuff."
-  def ssh
+  desc "submit", "turn in an assignment."
+  def submit
     require "net/ssh"
     require 'net/sftp'
 
+    server = "login.ccs.neu.edu"
+
     # Ash for username and password.
     username = ask "Enter your CCS username:"
-    password = get_password
+    password = ask "Enter your CCS password: (entry will NOT be hidden)"
 
     # Test username/password
-    Net::SSH.start('blackwidow.ccs.neu.edu', username, password: password)
+    begin
+      Net::SSH.start(server, username, password: password)
+    rescue Exception => e
+      puts red "Could not login to #{server}."
+      exit
+    end
 
     # Gather files that we might want to submit.
     files = []
@@ -72,12 +79,12 @@ class Jarhead < Thor
     basename = File.basename files[choice]
 
     # transfer the file to the linuxbox desktop
-    Net::SFTP.start('blackwidow.ccs.neu.edu', username, password: password) do |sftp|
+    Net::SFTP.start(server, username, password: password) do |sftp|
       sftp.upload!("#{files[choice]}", "/home/#{username}/Desktop/#{basename}")
     end
 
     # run OOD's submit script
-    Net::SSH.start('blackwidow.ccs.neu.edu', username, password: password) do |ssh|
+    Net::SSH.start(server, username, password: password) do |ssh|
       # capture only stdout matching a particular pattern
       stdout = ""
       assign_num = ask "What assignment number is this?"
@@ -95,9 +102,11 @@ class Jarhead < Thor
       Dir.mkdir "bin" unless File.directory? 'bin'
     end
 
-    def get_password( prompt="Enter CCS password: " )
-      ask(prompt) { |q| q.echo = false }
+    def colorize(text, color_code)
+      "\e[#{color_code}m#{text}\e[0m"
     end
+    def red(text); colorize(text, 31); end
+    def green(text); colorize(text, 32); end
 
   end
 
