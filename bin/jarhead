@@ -45,7 +45,15 @@ class Jarhead < Thor
   def combine( name )
     Dir.mkdir "compile" unless File.exists? "compile"
     out = File.new File.join("compile", "#{name}.java"), 'w'
-    Dir["src/*.java"].each { |f| out.print(File.read(f)); out.print("\n"); }
+    out.print File.read(File.new("src/#{name}.java"))
+    out.print "\n"
+    files = Dir["src/*.java"].reject do |f|
+      f == "src/#{name}.java"
+    end
+    files.each do |f|
+      out.print(File.read(f))
+      out.print("\n")
+    end
     out.close
     ensure_bin
     compile = system "javac -d bin compile/*.java test/*.java"
