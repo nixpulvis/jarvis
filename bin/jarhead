@@ -41,6 +41,25 @@ class Jarhead < Thor
     system "java -cp bin #{klass}" if compile
   end
 
+  desc "combine [NAME]", "combines the classes in src into 1 file."
+  def combine( name )
+    Dir.mkdir "compile" unless File.exists? "compile"
+    out = File.new File.join("compile", "#{name}.java"), 'w'
+    Dir["src/*.java"].each { |f| out.print(File.read(f)); out.print("\n"); }
+    out.close
+    ensure_bin
+    compile = system "javac -d bin compile/*.java test/*.java"
+    if compile
+      Dir.foreach('test') do |f|
+        next if f == '.' or f == '..'
+        say "------------------------------"
+        say "Testing #{File.basename(f, '.*')}"
+        say "------------------------------"
+        system "java -cp bin #{File.basename(f, '.*')}"
+      end
+    end
+  end
+
   desc "submit", "turn in an assignment."
   def submit
     require "net/ssh"
