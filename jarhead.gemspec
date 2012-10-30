@@ -1,4 +1,5 @@
-require "jarhead/version"
+$:.unshift 'lib'
+require 'jarhead/version'
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Nathan Lilienthal"]

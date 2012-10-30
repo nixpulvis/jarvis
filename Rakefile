@@ -11,4 +11,16 @@ require "bundler/gem_tasks"
 #     rake install
 #
 
+# By default build and install the gem
 task :default => :install
+
+require 'rake/testtask'
+
+# Test the gem with:
+#
+#     rake test
+#
+
+Rake::TestTask.new do |t|
+  t.libs << 'test'
+end
