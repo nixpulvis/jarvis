@@ -1,4 +1,5 @@
-# -*- encoding: utf-8 -*-
+require "jarhead/version"
+
 Gem::Specification.new do |gem|
   gem.authors       = ["Nathan Lilienthal"]
   gem.email         = ["nathanlil13@me.com"]
@@ -9,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.name          = "jarhead"
-  gem.version       = "0.0.5"
+  gem.version       = Jarhead::VERSION
 
   gem.add_runtime_dependency "thor"
   gem.add_runtime_dependency "highline"

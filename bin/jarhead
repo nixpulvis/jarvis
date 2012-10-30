@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require "thor"
-require "highline"
+require "highline/import"
 
 class Jarhead < Thor
 
@@ -75,9 +75,9 @@ class Jarhead < Thor
 
     server = "login.ccs.neu.edu"
 
-    # Ash for username and password.
-    username = ask "Enter your CCS username:"
-    password = ask "Enter your CCS password: (entry will NOT be hidden)"
+    # Ask for username and password.
+    username = ask "Enter your CCS username: "
+    password = ask("Enter your CCS password: ") { |q| q.echo = "x" }
 
     # Test username/password
     begin
