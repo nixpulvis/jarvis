@@ -1,4 +1,5 @@
-$:.unshift 'lib'
+# -*- encoding: utf-8 -*-
+$:.push File.expand_path("../lib", __FILE__)
 require 'jarhead/version'
 
 Gem::Specification.new do |gem|
@@ -13,7 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "jarhead"
   gem.version       = Jarhead::VERSION
 
-  gem.add_runtime_dependency "thor"
   gem.add_runtime_dependency "highline"
   gem.add_runtime_dependency "net-ssh"
   gem.add_runtime_dependency "net-sftp"

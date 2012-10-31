@@ -20,3 +20,4 @@ class String
 end
 
 require 'jarhead/compiler'
+require 'jarhead/version'
