@@ -9,11 +9,6 @@ class CompilerTest < Test::Unit::TestCase
     assert_equal ["src", "test"], extended_compiler.source_path
   end
 
-  def test_files
-    assert_equal ["src/*.java"], default_compiler.files
-    assert_equal ["src/*.java", "test/*.java"], extended_compiler.files
-  end
-
   def test_compile
     with_working_java 'src' do
       assert_equal true, default_compiler.compile

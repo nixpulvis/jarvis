@@ -1,4 +1,3 @@
-require 'tempfile'
 require 'jarhead/system'
 
 module Jarhead
@@ -6,16 +5,27 @@ module Jarhead
   class Compiler
     include System
 
-    attr_reader :source_path
+    attr_reader :source_path, :class_path
 
+    # Initialize a new Compiler to handle compiling and
+    # running java classes.
+    #
+    # source_path is an array of paths to compile from source.
+    # class_path is a path for the .class files to be stored.
+    #
     def initialize( source_path = ["src"], class_path = "src" )
       @source_path = source_path
       @class_path  = class_path
     end
 
+    # Compiles all files in @source_path into @class_path
+    #
+    # returns true if compilation was a success.
+    # returns false and prints errors if compilation fails.
+    #
     def compile
-      stdout = Tempfile.new('STDOUT')
-      output = system! "javac -d #{@class_path} " + files.join(" "), stdout.path
+      files = @source_path.map { |p| File.join(p, "*.java") }.join(" ")
+      output = system! "javac -d #{@class_path} " + files
       if $?.success?
         return true
       else
@@ -26,21 +36,17 @@ module Jarhead
       end
     end
 
+    # Runs the given class in an environment with all
+    # classes in the @class_path
+    #
+    # prints all output of the java application.
+    #
     def run( klass )
-      stdout = Tempfile.new('STDOUT')
-      output = system! "java -cp #{@class_path} #{klass}", stdout.path
+      output = system! "java -cp #{@class_path} #{klass}"
       puts "------------- Java Runtime -------------\n".yellow
       puts output.yellow
       puts "----------------------------------------".yellow
       return $?.success?
-    end
-
-    def files
-      result = []
-      @source_path.each do |path|
-        result << File.join(path, "*.java")
-      end
-      return result
     end
 
   end
