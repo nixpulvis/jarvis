@@ -2,6 +2,24 @@
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 require 'jarvis'
 
+HELP = <<-END
+Jarvis is a CLI for compiling and executing Java. It's goal is to
+make working with Java outside of an IDE easy.
+
+  Usage:
+    jarvis -v [--version]
+    jarvis -h [--help]
+    jarvis command [args...] [flags...]
+
+  Example:
+    jarvis new ProjectName
+    jarvis run ClassName
+    jarvis compile
+
+Report bugs to github.com/Epicgrim/jarvis/issues
+:: Made by @epicgrim ::
+END
+
 module Jarvis
   class CLI
 
@@ -13,16 +31,19 @@ module Jarvis
       Jarvis::Compiler.new.run klass
     end
 
+    def help
+      puts HELP
+    end
+
     # Sexy and Simple Command Parsing #
     ###################################
 
-    self.instance_methods(false).each do |name|
-      next if ARGV[0] != name.to_s
-      begin
-        self.new.public_send name, *ARGV.drop(1)
-      rescue ArgumentError => e
-        puts "#{name}: #{e.message}".red
-      end
+    begin
+      self.new.public_send ARGV[0].to_sym, *ARGV.drop(1)
+    rescue ArgumentError => e
+      puts "#{ARGV[0]}: #{e.message}".red
+    rescue Exception => e
+      puts "jarvis: #{ARGV[0]} is not a command.".red
     end
 
   end
