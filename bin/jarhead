@@ -13,18 +13,17 @@ module Jarhead
       Jarhead::Compiler.new.run klass
     end
 
-  end
-end
+    # Sexy and Simple Command Parsing #
+    ###################################
 
-command = ARGV[0]
-args = ARGV.drop(1) if ARGV.size > 1
+    self.instance_methods(false).each do |name|
+      next if ARGV[0] != name.to_s
+      begin
+        self.new.public_send name, *ARGV.drop(1)
+      rescue ArgumentError => e
+        puts "#{name}: #{e.message}".red
+      end
+    end
 
-# instance methods of Jarhead::CLI are commands in the cli
-Jarhead::CLI.instance_methods(false).each do |name|
-  next if ARGV[0] != name.to_s
-  begin
-    Jarhead::CLI.new.public_send name, *ARGV.drop(1)
-  rescue ArgumentError => e
-    puts "#{name}: #{e.message}".red
   end
 end
