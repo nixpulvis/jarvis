@@ -10,6 +10,7 @@ module Jarhead
 
     def initialize( path = ["src"] )
       @source_path = path
+      @class_path = "src"
     end
 
     def compile
@@ -18,11 +19,20 @@ module Jarhead
       if $?.success?
         return true
       else
-        puts "---------- Compilation Errors ----------\n".magenta
+        puts "---------- Compilation Errors ----------\n".red
         puts output.red
-        puts "----------------------------------------".magenta
+        puts "----------------------------------------".red
         return false
       end
+    end
+
+    def run( klass )
+      stdout = Tempfile.new('STDOUT')
+      output = system! "java -cp #{@class_path} #{klass}", stdout.path
+      puts "------------- Java Runtime -------------\n".yellow
+      puts output.yellow
+      puts "----------------------------------------".yellow
+      return $?.success?
     end
 
     def files

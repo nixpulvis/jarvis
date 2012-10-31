@@ -23,4 +23,11 @@ class CompilerTest < Test::Unit::TestCase
       assert_equal false, default_compiler.compile
     end
   end
+
+  def test_run
+    with_working_java 'src' do
+      default_compiler.compile
+      assert_equal true, default_compiler.run("TestClass")
+    end
+  end
 end
