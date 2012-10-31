@@ -8,14 +8,14 @@ module Jarhead
 
     attr_reader :source_path
 
-    def initialize( path = ["src"] )
-      @source_path = path
-      @class_path = "src"
+    def initialize( source_path = ["src"], class_path = "src" )
+      @source_path = source_path
+      @class_path  = class_path
     end
 
     def compile
       stdout = Tempfile.new('STDOUT')
-      output = system! "javac " + files.join(" "), stdout.path
+      output = system! "javac -d #{@class_path} " + files.join(" "), stdout.path
       if $?.success?
         return true
       else
