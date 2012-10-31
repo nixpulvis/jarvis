@@ -9,5 +9,9 @@ module Jarhead
       return File.open(stdout.path, "r").read
     end
 
+    def java?
+      system! "java -version" =~ /1.6/
+    end
+
   end
 end

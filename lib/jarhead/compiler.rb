@@ -14,6 +14,7 @@ module Jarhead
     # class_path is a path for the .class files to be stored.
     #
     def initialize( source_path = ["src"], class_path = "src" )
+      raise "Jarhead requires Java 1.6 or greater" unless java?
       @source_path = source_path
       @class_path  = class_path
     end
