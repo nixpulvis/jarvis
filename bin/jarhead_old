@@ -1,0 +1,146 @@
+#!/usr/bin/env ruby
+
+require "thor"
+require "highline/import"
+
+class Jarhead < Thor
+
+  desc "new [PROJECT_NAME]", "create a new Java project"
+  def new( name )
+    if File.directory? name
+      say "Folder #{name} already exists."
+      exit
+    end
+    Dir.mkdir name
+    Dir.mkdir File.join(name, 'src')
+    Dir.mkdir File.join(name, 'test')
+  end
+
+  desc "test", "recursively run all the test classes in ./test"
+  def test
+    ensure_bin
+    compile = system "javac -d bin src/*.java test/*.java"
+    if compile
+      Dir.foreach('test') do |f|
+        next if f == '.' or f == '..'
+        say "------------------------------"
+        say "Testing #{File.basename(f, '.*')}"
+        say "------------------------------"
+        system "java -cp bin #{File.basename(f, '.*')}"
+      end
+    end
+  end
+
+  desc "exec [CLASS]", "compile src and run the given class"
+  def exec( klass )
+    ensure_bin
+    say "------------------------------"
+    say "Running #{klass}"
+    say "------------------------------"
+    compile = system "javac -d bin src/*.java"
+    system "java -cp bin #{klass}" if compile
+  end
+
+  desc "combine [NAME]", "combines the classes in src into 1 file."
+  def combine( name )
+    Dir.mkdir "compile" unless File.exists? "compile"
+    out = File.new File.join("compile", "#{name}.java"), 'w'
+    out.print File.read(File.new("src/#{name}.java"))
+    out.print "\n"
+    files = Dir["src/*.java"].reject do |f|
+      f == "src/#{name}.java"
+    end
+    files.each do |f|
+      out.print(File.read(f))
+      out.print("\n")
+    end
+    out.close
+    ensure_bin
+    compile = system "javac -d bin compile/*.java test/*.java"
+    if compile
+      Dir.foreach('test') do |f|
+        next if f == '.' or f == '..'
+        say "------------------------------"
+        say "Testing #{File.basename(f, '.*')}"
+        say "------------------------------"
+        system "java -cp bin #{File.basename(f, '.*')}"
+      end
+    end
+  end
+
+  desc "submit", "turn in an assignment."
+  def submit
+    require "net/ssh"
+    require 'net/sftp'
+
+    server = "login.ccs.neu.edu"
+
+    # Ask for username and password.
+    username = ask "Enter your CCS username: "
+    password = ask("Enter your CCS password: ") { |q| q.echo = "x" }
+
+    # Test username/password
+    begin
+      Net::SSH.start(server, username, password: password)
+    rescue Exception => e
+      puts red "Could not login to #{server}."
+      exit
+    end
+
+    # Gather files that we might want to submit.
+    files = []
+    Dir.foreach('src') do |f|
+      next if f == "." or f == ".."
+      files << File.join("src", f)
+    end
+    Dir.foreach('test') do |f|
+      next if f == "." or f == ".."
+      files << File.join("test", f)
+    end
+    Dir.foreach('compile') do |f|
+      next if f == "." or f == ".."
+      files << File.join("compile", f)
+    end
+
+    # Prompt for user selection
+    files.each_with_index do |f, i|
+      say "#{i}.  #{f}"
+    end
+    choice = ask("What file?").to_i
+    basename = File.basename files[choice]
+
+    # transfer the file to the linuxbox desktop
+    Net::SFTP.start(server, username, password: password) do |sftp|
+      sftp.upload!("#{files[choice]}", "/home/#{username}/Desktop/#{basename}")
+    end
+
+    # run OOD's submit script
+    Net::SSH.start(server, username, password: password) do |ssh|
+      # capture only stdout matching a particular pattern
+      stdout = ""
+      assign_num = ask "What assignment number is this?"
+      ssh.exec!("/course/cs3500wc/submit #{username} #{assign_num} /home/#{username}/Desktop/#{basename}") do |channel, stream, data|
+        stdout << data if stream == :stdout
+      end
+      puts stdout
+    end
+  end
+
+
+  no_tasks do
+
+    def ensure_bin
+      Dir.mkdir "bin" unless File.directory? 'bin'
+    end
+
+    def colorize(text, color_code)
+      "\e[#{color_code}m#{text}\e[0m"
+    end
+    def red(text); colorize(text, 31); end
+    def green(text); colorize(text, 32); end
+
+  end
+
+end
+
+Jarhead.start

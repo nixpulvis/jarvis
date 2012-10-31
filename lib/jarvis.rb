@@ -1,4 +1,4 @@
-module Jarhead
+module Jarvis
 
 end
 
@@ -19,5 +19,5 @@ class String
 
 end
 
-require 'jarhead/compiler'
-require 'jarhead/version'
+require 'jarvis/compiler'
+require 'jarvis/version'

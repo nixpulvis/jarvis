@@ -1,6 +1,6 @@
-require 'jarhead/system'
+require 'jarvis/system'
 
-module Jarhead
+module Jarvis
 
   class Compiler
     include System

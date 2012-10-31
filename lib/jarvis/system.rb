@@ -1,6 +1,6 @@
 require 'tempfile'
 
-module Jarhead
+module Jarvis
   module System
 
     def system!( cmd, path = "/dev/null" )

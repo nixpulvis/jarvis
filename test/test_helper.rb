@@ -1,6 +1,6 @@
 require 'fileutils'
 require 'test/unit'
-require 'jarhead'
+require 'jarvis'
 
 WORKING_CODE = <<-END
 class TestClass {
