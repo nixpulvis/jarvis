@@ -1,7 +1,4 @@
-require 'test/unit'
 require 'test_helper'
-
-require 'jarhead/compiler'
 
 class CompilerTest < Test::Unit::TestCase
   def default_compiler; Jarhead::Compiler.new; end
@@ -19,11 +16,11 @@ class CompilerTest < Test::Unit::TestCase
 
   def test_compile
     with_working_java 'src' do
-      default_compiler.compile
+      assert_equal true, default_compiler.compile
     end
 
     with_broken_java 'src' do
-      default_compiler.compile
+      assert_equal false, default_compiler.compile
     end
   end
 end

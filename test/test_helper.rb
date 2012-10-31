@@ -1,3 +1,7 @@
+require 'fileutils'
+require 'test/unit'
+require 'jarhead'
+
 WORKING_CODE = <<-END
 class TestClass {
   public static void main(String[] args) {
@@ -29,11 +33,11 @@ def with_working_java( path )
     f.write WORKING_CODE
   end
 
-  yield
-
-  File.delete File.join(path, "TestClass.java")
-  File.delete File.join(path, "TestClass.class")
-  Dir.delete path
+  begin
+    yield
+  ensure
+    FileUtils.rm_rf path
+  end
 
 end
 
@@ -47,9 +51,10 @@ def with_broken_java( path )
     f.write BROKEN_CODE
   end
 
-  yield
-
-  File.delete File.join(path, "TestClass.java")
-  Dir.delete path
+  begin
+    yield
+  ensure
+    FileUtils.rm_rf path
+  end
 
 end
