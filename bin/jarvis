@@ -2,15 +2,15 @@
 $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 require 'jarvis'
 
-module Jarhead
+module Jarvis
   class CLI
 
     def compile
-      Jarhead::Compiler.new.compile
+      Jarvis::Compiler.new.compile
     end
 
     def run( klass )
-      Jarhead::Compiler.new.run klass
+      Jarvis::Compiler.new.run klass
     end
 
     # Sexy and Simple Command Parsing #
