@@ -22,14 +22,39 @@ coded by " + "epicgrim".magenta
 module Jarvis
   class CLI
 
+    def initialize
+      @compiler = Jarvis::Compiler.new ["src", "test"]
+    end
+
     # Commands
 
+    def new( project_name )
+      if File.exists? project_name
+        puts "File already exists: #{project_name}".red
+        exit
+      end
+      Dir.mkdir project_name
+      Dir.mkdir File.join(project_name, 'src')
+      Dir.mkdir File.join(project_name, 'test')
+      Dir.mkdir File.join(project_name, 'bin')
+    end
+
+    def create( name )
+      if File.exists? File.join("src", "#{name}.java")
+        puts "File already exists: #{name}.java"
+        exit
+      end
+      File.open(File.join("src", "#{name}.java"), 'w') do |f|
+        f.write "class #{name} { }"
+      end
+    end
+
     def compile
-      Jarvis::Compiler.new.compile
+      @compiler.compile
     end
 
     def run( klass )
-      Jarvis::Compiler.new.run klass
+      @compiler.run klass
     end
 
     def help

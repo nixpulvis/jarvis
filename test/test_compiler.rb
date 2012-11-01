@@ -1,8 +1,8 @@
 require 'test_helper'
 
 class CompilerTest < Test::Unit::TestCase
-  def default_compiler; Jarhead::Compiler.new; end
-  def extended_compiler; Jarhead::Compiler.new ["src", "test"]; end
+  def default_compiler; Jarvis::Compiler.new; end
+  def extended_compiler; Jarvis::Compiler.new ["src", "test"]; end
 
   def test_compiler_creation
     assert_equal ["src"], default_compiler.source_path

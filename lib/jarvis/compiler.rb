@@ -13,7 +13,7 @@ module Jarvis
     # source_path is an array of paths to compile from source.
     # class_path is a path for the .class files to be stored.
     #
-    def initialize( source_path = ["src"], class_path = "src" )
+    def initialize( source_path = ["src"], class_path = "bin" )
       raise "Jarhead requires Java 1.6 or greater" unless java?
       @source_path = source_path
       @class_path  = class_path
@@ -25,8 +25,7 @@ module Jarvis
     # returns false and prints errors if compilation fails.
     #
     def compile
-      files = @source_path.map { |p| File.join(p, "*.java") }.join(" ")
-      output = system! "javac -d #{@class_path} " + files
+      output = system! "javac -d #{@class_path} " + files(@source_path).join(' ')
       if $?.success?
         return true
       else
@@ -48,6 +47,22 @@ module Jarvis
       puts output.yellow
       puts "----------------------------------------".yellow
       return $?.success?
+    end
+
+    private
+
+    # Return an array of file paths from project, that we want to
+    # compile in the given path.
+    #
+    def files( paths )
+      results = []
+      paths.each do |dir|
+        Dir.foreach(dir) do |file|
+          next unless file =~ /.java/
+          results << File.join(dir, file)
+        end
+      end
+      return results
     end
 
   end
