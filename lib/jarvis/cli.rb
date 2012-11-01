@@ -33,10 +33,10 @@ module Jarvis
         begin
           self.new.public_send command, *ARGV.drop(1)
         rescue ArgumentError => e
-          puts "#{ARGV[0]}: #{e.message}".red
-        rescue NoMethodError => e
-          puts "jarvis: #{ARGV[0]} is not a command.".red
+          puts "#{command}: #{e.message}".red
         end
+      else
+        puts "jarvis: #{command} is not a command.".red
       end
     end
 
