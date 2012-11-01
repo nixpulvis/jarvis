@@ -3,9 +3,8 @@ $:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
 require 'jarvis'
 require 'jarvis/cli'
 
-HELP = <<-END
-Jarvis is a CLI for compiling and executing Java. It's goal is to
-make working with Java outside of an IDE easy.
+HELP = "Jarvis is a CLI for compiling and executing Java. It's goal is to
+make working with Java outside of an IDE easy.".green + "
 
   Usage:
     jarvis -v [--version]
@@ -17,9 +16,8 @@ make working with Java outside of an IDE easy.
     jarvis run ClassName
     jarvis compile
 
-Report bugs to github.com/Epicgrim/jarvis/issues
-:: Made by @epicgrim ::
-END
+Report any bugs to github.com/Epicgrim/jarvis/issues
+coded by " + "epicgrim".magenta
 
 module Jarvis
   class CLI
