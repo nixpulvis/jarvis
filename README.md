@@ -1,3 +1,6 @@
 # Jarvis
 
-![Example usage](http://f.cl.ly/items/0Y0J2B0m0d090S2W1R1H/Screen%20Shot%202012-11-01%20at%201.05.33%20AM.png)
+A simple Java manager for compiling and running code. Simple put Java code in the src or test directory and Jarvis will handle the rest.
+
+## Example Usage
+![](http://f.cl.ly/items/0a2r2F1t210t3L3p1A18/Screen%20Shot%202012-11-07%20at%202.23.26%20AM.png)
