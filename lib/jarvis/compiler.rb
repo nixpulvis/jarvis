@@ -25,6 +25,8 @@ module Jarvis
     # returns false and prints errors if compilation fails.
     #
     def compile
+      Dir.mkdir @class_path unless File.exists? class_path
+
       output = system! "javac -d #{@class_path} " + files(@source_path).join(' ')
       if $?.success?
         return true
@@ -57,6 +59,7 @@ module Jarvis
     def files( paths )
       results = []
       paths.each do |dir|
+        next unless File.exists? dir
         Dir.foreach(dir) do |file|
           next unless file =~ /.java/
           results << File.join(dir, file)
