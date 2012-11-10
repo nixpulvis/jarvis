@@ -58,8 +58,7 @@ module Jarvis
     end
 
     def crun( klass )
-      compile
-      run klass
+      compile and run klass
     end
 
     def help
