@@ -57,6 +57,11 @@ module Jarvis
       @compiler.run klass
     end
 
+    def crun( klass )
+      compile
+      run klass
+    end
+
     def help
       puts HELP
     end
